@@ -7,7 +7,7 @@ export function execute(message) {
   const diff = releaseDate.getTime() - now.getTime();
 
   if (diff <= 0) {
-    return message.reply('🎉 *¡Ya está disponible!* 🎉\n\nEl libro ya está publicado. Entra a https://tudominio/libro para leerlo 💖');
+    return message.reply('🎉 *¡Ya está disponible!* 🎉\n\nEl libro ya está publicado. Entra a https://tu-eres-las-razones-de-mi-corazon.pages.dev/libro para leerlo 💖');
   }
 
   const days = Math.floor(diff / 86400000);

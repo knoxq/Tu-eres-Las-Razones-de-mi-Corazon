@@ -6,6 +6,9 @@ export function execute(message) {
 
 Hola, soy el bot del libro — TU ERES las 12 razones DE MI CORAZON —. Usa los comandos con el prefijo *!*:
 
+🌐 *!pagina* o *!link*
+Enlace de la página web para leer el libro y las cartas.
+
 📖 *!capitulo* o *!capitulodia*
 Capítulo destacado de hoy (basado en la fecha).
 

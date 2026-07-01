@@ -212,7 +212,7 @@ export async function fetchYouTubePlaylist(playlistUrl, apiKey) {
   if (!playlistId) throw new Error('No se pudo extraer el ID de la playlist. Verifica la URL.');
 
   if (apiKey) {
-    const apiUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${apiKey}`;
+    const apiUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${apiKey}`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
       let msg = `Error de YouTube API (${response.status})`;
@@ -231,30 +231,53 @@ export async function fetchYouTubePlaylist(playlistUrl, apiKey) {
     }));
   }
 
-  let response;
-  try {
-    response = await fetch(`https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`);
-  } catch {
-    throw new Error(
-      'No se pudo conectar con YouTube (error de red/CORS). ' +
-      'Agrega una API Key de YouTube en la configuración avanzada.'
-    );
+  const feedUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
+  const proxies = [
+    (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    (url) => url,
+  ];
+
+  let lastError = null;
+  for (const makeUrl of proxies) {
+    try {
+      const response = await fetch(makeUrl(feedUrl));
+      if (!response.ok) { lastError = new Error('La playlist no existe o es privada.'); continue; }
+
+      const xml = await response.text();
+      if (!xml || xml.length < 100) { lastError = new Error('Respuesta vacía del servidor.'); continue; }
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xml, 'text/xml');
+      const entries = doc.querySelectorAll('entry');
+      if (entries.length === 0) {
+        const feedTitle = doc.querySelector('title')?.textContent || '';
+        if (feedTitle) {
+          lastError = new Error('La playlist existe pero no se pudieron extraer los videos. Usa una API Key.');
+        } else {
+          lastError = new Error('No se encontraron videos en la playlist.');
+        }
+        continue;
+      }
+
+      return Array.from(entries).map((entry) => {
+        const title = entry.querySelector('title')?.textContent || '';
+        const videoId = entry.getElementsByTagNameNS('http://www.youtube.com/xml/schemas/2015', 'videoId')[0]?.textContent;
+        return {
+          title: title || `Video ${videoId}`,
+          source: `https://www.youtube.com/watch?v=${videoId}`,
+          isYouTube: true
+        };
+      });
+    } catch (err) {
+      lastError = err;
+      continue;
+    }
   }
-  if (!response.ok) throw new Error('La playlist no existe o es privada.');
 
-  const xml = await response.text();
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(xml, 'text/xml');
-  const entries = doc.querySelectorAll('entry');
-  if (entries.length === 0) throw new Error('No se encontraron videos en la playlist.');
-
-  return Array.from(entries).map((entry) => {
-    const title = entry.querySelector('title')?.textContent || '';
-    const videoId = entry.getElementsByTagNameNS('http://www.youtube.com/xml/schemas/2015', 'videoId')[0]?.textContent;
-    return {
-      title: title || `Video ${videoId}`,
-      source: `https://www.youtube.com/watch?v=${videoId}`,
-      isYouTube: true
-    };
-  });
+  throw new Error(
+    'No se pudo cargar la playlist desde el navegador (CORS). ' +
+    'Agrega una API Key de YouTube en la configuración avanzada para que funcione. ' +
+    (lastError?.message ? `(${lastError.message})` : '')
+  );
 }

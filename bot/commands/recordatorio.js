@@ -17,7 +17,7 @@ export function execute(message, client) {
 
   const job = schedule.scheduleJob(releaseDate, async () => {
     try {
-      await client.sendMessage(from, `🎉 *¡Ya está disponible!* 🎉\n\nHola ${pushName}, el libro ya está publicado.\n\nEntra aquí para leerlo: https://tudominio/libro\n\nGracias por esperar 💖`);
+      await client.sendMessage(from, `🎉 *¡Ya está disponible!* 🎉\n\nHola ${pushName}, el libro ya está publicado.\n\nEntra aquí para leerlo: https://tu-eres-las-razones-de-mi-corazon.pages.dev/libro\n\nGracias por esperar 💖`);
     } catch (err) {
       console.error('Error sending reminder:', err);
     }
