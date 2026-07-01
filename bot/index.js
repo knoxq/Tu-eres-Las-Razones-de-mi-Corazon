@@ -59,8 +59,17 @@ async function sendToGroups(text) {
   }
 }
 
+// Guard para evitar programar recordatorios más de una vez (el evento ready puede dispararse varias veces)
+let remindersScheduled = false;
+
 // Programa los recordatorios automáticos hacia el lanzamiento
 function scheduleCountdownReminders() {
+  if (remindersScheduled) {
+    console.log('ℹ️ Los recordatorios ya estaban programados, se omite.');
+    return;
+  }
+  remindersScheduled = true;
+
   const now = Date.now();
 
   // Si ya pasó el lanzamiento, no programar nada
