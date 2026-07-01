@@ -1,0 +1,46 @@
+---
+---
+
+<div class="reason-of-day-overlay" id="reason-of-day-overlay">
+  <div class="reason-of-day-card" id="reason-of-day-card">
+    <div class="rod-label">✨ Capítulo del día ✨</div>
+    <div class="rod-number" id="rod-number">Capítulo #...</div>
+    <div class="rod-reason" id="rod-reason">"Cargando..."</div>
+    <button class="rod-close-btn" id="rod-close-btn">Comenzar a leer 💖</button>
+  </div>
+</div>
+
+<script>
+  import { capitulos } from '../data/capitulos.js';
+  import { loadFavorites, isFavorite } from '../scripts/favorites.js';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('reason-of-day-overlay');
+    const card = document.getElementById('reason-of-day-card');
+    const numberEl = document.getElementById('rod-number');
+    const reasonEl = document.getElementById('rod-reason');
+    const closeBtn = document.getElementById('rod-close-btn');
+
+    const seed = new Date().toDateString();
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+      hash |= 0;
+    }
+    const randomIndex = Math.abs(hash) % capitulos.length;
+    const item = capitulos[randomIndex];
+
+    if (numberEl) numberEl.textContent = `Capítulo #${item.id}`;
+    if (reasonEl) reasonEl.textContent = `"${item.resumen}"`;
+
+    closeBtn?.addEventListener('click', () => {
+      overlay.classList.remove('active');
+      card.classList.remove('active');
+    });
+
+    setTimeout(() => {
+      overlay.classList.add('active');
+      setTimeout(() => card.classList.add('active'), 100);
+    }, 800);
+  });
+</script>

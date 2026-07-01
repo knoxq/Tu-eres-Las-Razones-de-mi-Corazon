@@ -1,0 +1,135 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CartasGrid from '../components/CartasGrid.astro';
+import EnvelopeModal from '../components/EnvelopeModal.astro';
+import ComingSoon from '../components/ComingSoon.astro';
+---
+
+<Layout>
+  <main class="content-container" id="cartas-content">
+    <CartasGrid />
+    <EnvelopeModal />
+  </main>
+  <div id="access-blocker-cartas">
+    <ComingSoon />
+  </div>
+</Layout>
+
+<style>
+  #access-blocker-cartas {
+    display: none;
+  }
+  #access-blocker-cartas.active {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+  }
+</style>
+
+<script>
+  import { capitulos } from '../data/capitulos.js';
+  import { loadFavorites, isFavorite, toggleFavorite as toggleFav, saveFavorites } from '../scripts/favorites.js';
+  import { spawnHeartsConfetti } from '../scripts/confetti.js';
+
+  const ADMIN_KEY = 'dd-amor-2026';
+
+  function openLetterForCapitulo(id) {
+    const item = capitulos.find(c => c.id === id);
+    if (!item) return;
+
+    const modal = document.getElementById('envelope-modal');
+    const envelope = document.getElementById('envelope-box');
+    if (!modal || !envelope) return;
+
+    document.getElementById('letter-reason-num').textContent = `Capítulo #${item.id}`;
+    document.getElementById('letter-reason-text').textContent = item.carta ? `"${item.carta}"` : `"${item.resumen}"`;
+
+    const letterFav = document.getElementById('letter-fav-toggle');
+    if (letterFav) {
+      if (isFavorite(id)) {
+        letterFav.classList.add('is-fav');
+        letterFav.innerHTML = '❤️ Guardada en favoritas';
+      } else {
+        letterFav.classList.remove('is-fav');
+        letterFav.innerHTML = '<span class="heart-icon">❤️</span> Guardar en favoritas';
+      }
+    }
+
+    modal.classList.add('active', 'paper-mode');
+    envelope.classList.add('open');
+    const hint = document.getElementById('envelope-hint');
+    if (hint) hint.style.display = 'none';
+
+    setTimeout(() => {
+      const rect = modal.getBoundingClientRect();
+      spawnHeartsConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 25);
+    }, 500);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const isAdmin = params.get('access') === ADMIN_KEY;
+    const isReleased = Date.now() >= new Date('2026-07-02T00:00:00').getTime();
+
+    if (!isReleased && !isAdmin) {
+      document.getElementById('access-blocker-cartas')?.classList.add('active');
+      return;
+    }
+
+    loadFavorites();
+
+    document.querySelectorAll('.carta-open-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = parseInt(btn.dataset.id, 10);
+        openLetterForCapitulo(id);
+      });
+    });
+
+    document.querySelectorAll('.carta-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.carta-open-btn')) return;
+        card.classList.toggle('flipped');
+      });
+    });
+
+    document.getElementById('close-envelope-btn')?.addEventListener('click', () => {
+      document.getElementById('envelope-modal')?.classList.remove('active', 'paper-mode');
+      document.getElementById('envelope-box')?.classList.remove('open');
+    });
+
+    document.getElementById('envelope-modal')?.addEventListener('click', (e) => {
+      if (e.target === document.getElementById('envelope-modal')) {
+        document.getElementById('envelope-modal')?.classList.remove('active', 'paper-mode');
+        document.getElementById('envelope-box')?.classList.remove('open');
+      }
+    });
+
+    document.getElementById('envelope-box')?.addEventListener('click', function () {
+      if (this.classList.contains('open')) return;
+      this.classList.add('open');
+      const hint = document.getElementById('envelope-hint');
+      if (hint) hint.style.display = 'none';
+    });
+
+    document.getElementById('letter-fav-toggle')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const numEl = document.getElementById('letter-reason-num');
+      if (!numEl) return;
+      const id = parseInt(numEl.textContent?.replace('Capítulo #', '') || '0', 10);
+      if (id) {
+        const isAdding = toggleFav(id);
+        saveFavorites();
+        const btn = e.currentTarget;
+        if (isAdding) {
+          btn.classList.add('is-fav');
+          btn.innerHTML = '❤️ Guardada en favoritas';
+        } else {
+          btn.classList.remove('is-fav');
+          btn.innerHTML = '<span class="heart-icon">❤️</span> Guardar en favoritas';
+        }
+      }
+    });
+  });
+</script>

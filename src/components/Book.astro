@@ -1,0 +1,34 @@
+---
+import Controls from './Controls.astro';
+import Pagination from './Pagination.astro';
+---
+
+<section class="book-section" id="book-section">
+  <div class="focus-backdrop" id="focus-backdrop"></div>
+  <Controls />
+  <div class="book-wrapper">
+    <button class="focus-toggle-btn" id="focus-toggle-btn" title="Modo Enfoque (Ampliar libro y atenuar fondo)">
+      <span class="focus-icon">👀</span> Modo Enfoque
+    </button>
+    <div class="book-container" id="book-element">
+      <div class="book-page page-left">
+        <div class="page-content" id="left-page-content"></div>
+        <div class="page-number" id="left-page-num">1</div>
+      </div>
+      <div class="book-gutter"></div>
+      <div class="book-page page-right">
+        <div class="page-content" id="right-page-content"></div>
+        <div class="page-number" id="right-page-num">2</div>
+      </div>
+    </div>
+  </div>
+  <Pagination />
+</section>
+
+<script>
+  import { setupBook } from '../scripts/book.js';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setupBook();
+  });
+</script>

@@ -1,23 +1,41 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+import Background from '../components/Background.astro';
+import Header from '../components/Header.astro';
+import '../styles/variables.css';
+import '../styles/global.css';
+import '../styles/background.css';
+import '../styles/header.css';
+import '../styles/hero.css';
+import '../styles/music.css';
+import '../styles/book.css';
+import '../styles/controls.css';
+import '../styles/modals.css';
+---
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>12 Razones - Nuestra Historia</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lilita+One&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <Background />
+    <Header />
+
+    <audio id="bg-audio" loop src="https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3"></audio>
+
+    <slot />
+
+    <script>
+      import { setupViewTransitions } from '../scripts/transitions.js';
+      document.addEventListener('DOMContentLoaded', setupViewTransitions);
+    </script>
+  </body>
+</html>

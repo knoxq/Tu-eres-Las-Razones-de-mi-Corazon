@@ -1,0 +1,229 @@
+---
+import { capitulos } from '../data/capitulos.js';
+---
+
+<div class="cartas-grid" id="cartas-grid">
+  <h2 class="cartas-title">Cartas de Amor</h2>
+  <p class="cartas-subtitle">Cada capítulo tiene una carta especial escrita desde el corazón.</p>
+
+  <div class="cartas-grid-container">
+    {capitulos.map((item) => (
+      <div class="carta-card" data-id={item.id}>
+        <div class="carta-envelope">
+          <div class="carta-envelope-front">
+            <span class="carta-number">#{item.id}</span>
+            <span class="carta-heart">💌</span>
+          </div>
+          <div class="carta-envelope-back">
+            <div class="carta-preview">
+              <div class="carta-preview-title">{item.titulo}</div>
+              <div class="carta-preview-text">"{item.resumen}"</div>
+              <button class="carta-open-btn" data-id={item.id}>Leer carta completa</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .cartas-grid {
+    padding: 4rem 1rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cartas-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--color-primary, #3c376d);
+    text-align: center;
+    margin: 0 0 0.5rem;
+    letter-spacing: 2px;
+  }
+
+  .cartas-subtitle {
+    font-family: 'Quicksand', sans-serif;
+    color: var(--color-accent-light, #6a4a9a);
+    text-align: center;
+    font-size: 1rem;
+    margin: 0 0 3rem;
+  }
+
+  .cartas-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 2rem;
+  }
+
+  .carta-card {
+    perspective: 800px;
+    cursor: pointer;
+  }
+
+  .carta-envelope {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/4;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+
+  .carta-card:hover .carta-envelope {
+    transform: rotateY(180deg);
+  }
+
+  .carta-card.flipped .carta-envelope {
+    transform: rotateY(180deg);
+  }
+
+  .carta-envelope-front,
+  .carta-envelope-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .carta-envelope-front {
+    background: linear-gradient(135deg, var(--color-primary, #3c376d), var(--color-secondary, #59529b));
+    border: 2px solid var(--color-accent-light, #6a4a9a);
+  }
+
+  .carta-envelope-back {
+    background: var(--color-bg-card, #1a1630);
+    border: 2px solid var(--color-heart, #4a7ab5);
+    transform: rotateY(180deg);
+    overflow: hidden;
+  }
+
+  .carta-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--color-accent-light, #6a4a9a);
+  }
+
+  .carta-heart {
+    font-size: 2.5rem;
+    margin-top: 0.5rem;
+    animation: floatHeart 3s ease-in-out infinite;
+  }
+
+  @keyframes floatHeart {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .carta-preview-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--color-heart, #4a7ab5);
+    text-align: center;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+  }
+
+  .carta-preview-text {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.8rem;
+    color: var(--color-accent-light, #6a4a9a);
+    text-align: center;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .carta-open-btn {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: var(--color-heart, #4a7ab5);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+
+  .carta-open-btn:hover {
+    background: var(--color-primary, #3c376d);
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 600px) {
+    .cartas-grid {
+      padding: 2.5rem 0.75rem;
+    }
+    .cartas-grid-container {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    .cartas-title {
+      font-size: 2rem;
+    }
+    .cartas-subtitle {
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+    .carta-envelope-front,
+    .carta-envelope-back {
+      padding: 0.9rem;
+    }
+    .carta-number {
+      font-size: 2rem;
+    }
+    .carta-heart {
+      font-size: 1.8rem;
+    }
+    .carta-preview-title {
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+    }
+    .carta-preview-text {
+      font-size: 0.7rem;
+      -webkit-line-clamp: 3;
+      margin-bottom: 0.6rem;
+    }
+    .carta-open-btn {
+      font-size: 0.65rem;
+      padding: 0.35rem 0.7rem;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .cartas-grid {
+      padding: 2rem 0.5rem;
+    }
+    .cartas-grid-container {
+      gap: 0.6rem;
+    }
+    .carta-number {
+      font-size: 1.6rem;
+    }
+    .carta-heart {
+      font-size: 1.5rem;
+    }
+    .carta-preview-title {
+      font-size: 0.75rem;
+    }
+    .carta-preview-text {
+      font-size: 0.65rem;
+      -webkit-line-clamp: 2;
+    }
+    .carta-open-btn {
+      font-size: 0.6rem;
+      padding: 0.3rem 0.5rem;
+    }
+  }
+</style>

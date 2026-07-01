@@ -1,0 +1,14 @@
+---
+const { item } = Astro.props;
+---
+
+<div class="reason-card" style="--card-border-color: var(--color-category-1)">
+  <div class="reason-card-header">
+    <span class="reason-number">Capítulo #{item.id}</span>
+    {item.titulo && <span class="reason-title">{item.titulo}</span>}
+  </div>
+  <p class="reason-text">"{item.resumen}"</p>
+  <div class="reason-card-actions">
+    <button class="fav-heart-btn" aria-label="Añadir a favoritas">♡</button>
+  </div>
+</div>

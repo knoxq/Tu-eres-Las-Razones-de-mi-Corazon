@@ -1,0 +1,173 @@
+---
+import MusicPlayer from './MusicPlayer.astro';
+---
+
+<header class="app-header">
+  <div class="header-logo" id="logo-trigger" role="button" aria-label="Ir al inicio">
+    <span class="logo-thin">TU ERES</span>
+    <span class="logo-chunky">LAS 12 RAZONES</span>
+    <span class="logo-thin">DE MI CORAZON</span>
+  </div>
+
+  <nav class="header-nav" id="header-nav">
+    <a href="/" class="nav-link" id="nav-home">INICIO</a>
+    <a href="/libro" class="nav-link" id="nav-book">LIBRO</a>
+    <a href="/cartas" class="nav-link" id="nav-cartas">CARTAS</a>
+  </nav>
+
+  <div class="header-actions">
+    <MusicPlayer />
+    <div class="music-dropdown" id="music-dropdown">
+      <div class="music-dropdown-header">Siguientes canciones</div>
+      <ul class="music-dropdown-list" id="music-dropdown-list"></ul>
+      <button class="music-see-all-btn" id="music-see-all-btn">Ver playlist completa →</button>
+    </div>
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Abrir menú de navegación" aria-expanded="false">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+  </div>
+</header>
+
+<script>
+  import { loadMusicPlaylist, getPlaylist, getCurrentTrackIndex, isMusicPlaying, toggleMusic, prevTrack, nextTrack, skipTo, updateMusicUI, playTrack } from '../scripts/music.js';
+
+  let dropdownOpen = false;
+
+  function openDropdown() {
+    document.getElementById('music-dropdown')?.classList.add('open');
+    document.getElementById('music-chevron')?.classList.add('open');
+    renderDropdown();
+    dropdownOpen = true;
+  }
+
+  function closeDropdown() {
+    document.getElementById('music-dropdown')?.classList.remove('open');
+    document.getElementById('music-chevron')?.classList.remove('open');
+    dropdownOpen = false;
+  }
+
+  function renderDropdown() {
+    const list = document.getElementById('music-dropdown-list');
+    if (!list) return;
+
+    list.innerHTML = '';
+    const playlist = getPlaylist();
+    const currentIdx = getCurrentTrackIndex();
+
+    for (let offset = 1; offset <= 5; offset++) {
+      const idx = (currentIdx + offset) % playlist.length;
+      const t = playlist[idx];
+      if (!t) continue;
+      const li = document.createElement('li');
+      li.className = 'music-dropdown-item';
+      if (idx === currentIdx) li.classList.add('active-track');
+      if (idx === currentIdx && isMusicPlaying()) li.classList.add('is-playing');
+
+      const videoId = t.isYouTube ? getYouTubeId(t.source) : null;
+      const thumbHtml = videoId
+        ? `<img src="https://img.youtube.com/vi/${videoId}/default.jpg" alt="" loading="lazy" />`
+        : '🎵';
+
+      li.innerHTML = `
+        <span class="music-item-num">${idx + 1}</span>
+        <div class="music-item-thumb">${thumbHtml}</div>
+        <div class="music-item-info">
+          <div class="music-item-title">${t.title}</div>
+        </div>
+        <div class="music-item-playing-bars">
+          <span></span><span></span><span></span>
+        </div>
+      `;
+      li.addEventListener('click', () => {
+        skipTo(idx);
+        closeDropdown();
+      });
+      list.appendChild(li);
+    }
+  }
+
+  function getYouTubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadMusicPlaylist();
+    updateMusicUI();
+
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const headerNav = document.getElementById('header-nav');
+
+    function closeNav() {
+      headerNav?.classList.remove('open');
+      hamburgerBtn?.classList.remove('open');
+      hamburgerBtn?.setAttribute('aria-expanded', 'false');
+    }
+
+    function openNav() {
+      headerNav?.classList.add('open');
+      hamburgerBtn?.classList.add('open');
+      hamburgerBtn?.setAttribute('aria-expanded', 'true');
+      closeDropdown();
+    }
+
+    hamburgerBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      headerNav?.classList.contains('open') ? closeNav() : openNav();
+    });
+
+    headerNav?.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', closeNav);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (headerNav?.classList.contains('open')) {
+        if (!headerNav.contains(e.target) && !hamburgerBtn?.contains(e.target)) {
+          closeNav();
+        }
+      }
+    });
+
+    document.getElementById('music-now-playing-trigger')?.addEventListener('click', () => {
+      closeNav();
+      dropdownOpen ? closeDropdown() : openDropdown();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (dropdownOpen) {
+        const widget = document.getElementById('music-player-widget');
+        const dropdown = document.getElementById('music-dropdown');
+        const nav = document.getElementById('header-nav');
+        if (widget && !widget.contains(e.target) && !dropdown?.contains(e.target) && !nav?.contains(e.target)) {
+          closeDropdown();
+        }
+      }
+    });
+
+    document.getElementById('music-prev-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      prevTrack();
+      updateMusicUI();
+    });
+
+    document.getElementById('music-next-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      nextTrack();
+      updateMusicUI();
+    });
+
+    document.getElementById('music-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMusic();
+      updateMusicUI();
+    });
+
+    document.getElementById('music-see-all-btn')?.addEventListener('click', () => {
+      document.getElementById('playlist-modal')?.classList.add('active');
+      closeDropdown();
+    });
+  });
+</script>

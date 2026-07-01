@@ -1,0 +1,507 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ComingSoon from '../components/ComingSoon.astro';
+import { capitulos } from '../data/capitulos.js';
+const totalChapters = capitulos.length;
+---
+
+<Layout>
+  <main id="book-page">
+    <div id="access-blocker">
+      <ComingSoon />
+    </div>
+
+    <div id="book-content">
+      <header class="page-header">
+        <h1>Nuestra Historia</h1>
+        <p class="page-subtitle">12 capítulos escritos con el corazón</p>
+
+        <div class="book-tools">
+          <input type="search" id="search-input" placeholder="Buscar en el libro..." autocomplete="off" />
+          <select id="chapter-select">
+            <option value="">Ir al capítulo...</option>
+            {capitulos.map(c => (
+              <option value={c.id}>Capítulo {c.id}: {c.titulo}</option>
+            ))}
+          </select>
+          <button id="pdf-btn" title="Descargar PDF">📥 PDF</button>
+        </div>
+      </header>
+
+      <!-- Pagination top -->
+      <nav class="pagination-nav">
+        <button class="pag-btn" id="prev-chapter" aria-label="Capítulo anterior">◀ Anterior</button>
+        <span class="pag-indicator" id="page-indicator">Capítulo 1 de {totalChapters}</span>
+        <button class="pag-btn" id="next-chapter" aria-label="Capítulo siguiente">Siguiente ▶</button>
+      </nav>
+
+      <div class="chapters">
+        {capitulos.map((cap, idx) => {
+          const paragraphs = cap.contenido
+            .replace(/<!--[\s\S]*?-->/g, '')
+            .split(/\n\n+/)
+            .map(p => p.trim())
+            .filter(p => p.length > 0);
+
+          return (
+            <article class="chapter" data-chapter-id={cap.id}>
+              <header class="chapter-header">
+                <span class="chapter-number">Capítulo {cap.id}</span>
+                <h2 class="chapter-title">{cap.titulo}</h2>
+                <p class="chapter-resumen">{cap.resumen}</p>
+              </header>
+
+              <div class="chapter-body">
+                {paragraphs.map(p => <p>{p}</p>)}
+              </div>
+
+              <section class="chapter-carta">
+                <button class="carta-toggle" data-carta-id={cap.id}>
+                  💌 Carta de este capítulo
+                </button>
+                <div class="carta-content" id={`carta-${cap.id}`}>
+                  <h3>💌 Carta — {cap.titulo}</h3>
+                  {cap.carta.split('\n\n').filter(p => p.trim()).map(p => <p>{p.trim()}</p>)}
+                </div>
+              </section>
+            </article>
+          );
+        })}
+      </div>
+
+      <!-- Pagination bottom -->
+      <nav class="pagination-nav bottom">
+        <button class="pag-btn" id="prev-chapter-bottom">◀ Anterior</button>
+        <span class="pag-indicator">Capítulo <span id="page-indicator-bottom">1</span> de {totalChapters}</span>
+        <button class="pag-btn" id="next-chapter-bottom">Siguiente ▶</button>
+      </nav>
+
+      <footer class="book-footer">
+        <p>💖 — TU ERES las 12 razones DE MI CORAZON</p>
+      </footer>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { generatePDF } from '../scripts/pdf.js';
+
+  const ADMIN_KEY = 'dd-amor-2026';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const isAdmin = params.get('access') === ADMIN_KEY;
+    const isReleased = Date.now() >= new Date('2026-07-02T00:00:00').getTime();
+
+    if (!isReleased && !isAdmin) {
+      document.getElementById('access-blocker')?.classList.add('active');
+      return;
+    }
+
+    const chapters = document.querySelectorAll('.chapter');
+    const total = chapters.length;
+    let currentChapter = 1;
+
+    // UI elements
+    const searchInput = document.getElementById('search-input');
+    const chapterSelect = document.getElementById('chapter-select');
+    const prevBtns = [document.getElementById('prev-chapter'), document.getElementById('prev-chapter-bottom')];
+    const nextBtns = [document.getElementById('next-chapter'), document.getElementById('next-chapter-bottom')];
+    const indicators = [document.getElementById('page-indicator'), document.getElementById('page-indicator-bottom')];
+
+    function showChapter(id) {
+      currentChapter = Math.max(1, Math.min(total, id));
+      chapters.forEach((ch, i) => {
+        ch.style.display = i + 1 === currentChapter ? 'block' : 'none';
+      });
+      indicators.forEach(el => {
+        if (el) el.textContent = `Capítulo ${currentChapter} de ${total}`;
+      });
+      const bottomIndicator = document.getElementById('page-indicator-bottom');
+      if (bottomIndicator) bottomIndicator.textContent = currentChapter;
+
+      prevBtns.forEach(b => { if (b) b.disabled = currentChapter === 1; });
+      nextBtns.forEach(b => { if (b) b.disabled = currentChapter === total; });
+
+      // Update URL without reload
+      const url = new URL(window.location);
+      url.searchParams.set('capitulo', currentChapter);
+      window.history.replaceState({}, '', url);
+
+      // Scroll to top of chapter
+      const target = document.querySelector(`.chapter[data-chapter-id="${currentChapter}"]`);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Init: read chapter from URL
+    const urlChapter = parseInt(params.get('capitulo'), 10);
+    showChapter(urlChapter >= 1 && urlChapter <= total ? urlChapter : 1);
+
+    // Prev/Next
+    function goPrev() { showChapter(currentChapter - 1); }
+    function goNext() { showChapter(currentChapter + 1); }
+    prevBtns.forEach(b => b?.addEventListener('click', goPrev));
+    nextBtns.forEach(b => b?.addEventListener('click', goNext));
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') goPrev();
+      if (e.key === 'ArrowRight') goNext();
+    });
+
+    // Chapter selector
+    chapterSelect?.addEventListener('change', () => {
+      const id = parseInt(chapterSelect.value, 10);
+      if (id >= 1 && id <= total) {
+        showChapter(id);
+        chapterSelect.value = '';
+      }
+    });
+
+    // Search shows all matching chapters
+    let searchActive = false;
+    searchInput?.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase().trim();
+      searchActive = !!q;
+
+      if (searchActive) {
+        chapters.forEach(ch => {
+          const text = ch.textContent.toLowerCase();
+          const match = text.includes(q);
+          ch.style.display = match ? 'block' : 'none';
+          ch.querySelectorAll('p').forEach(p => {
+            p.innerHTML = match
+              ? p.textContent.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'), '<mark>$1</mark>')
+              : p.textContent;
+          });
+        });
+        // Hide pagination when searching
+        document.querySelectorAll('.pagination-nav').forEach(n => n.style.display = 'none');
+      } else {
+        // Restore single chapter view
+        document.querySelectorAll('.pagination-nav').forEach(n => n.style.display = '');
+        showChapter(currentChapter);
+      }
+    });
+
+    // Carta toggle
+    document.querySelectorAll('.carta-toggle').forEach(btn => {
+      const cartaId = btn.dataset.cartaId;
+      const cartaContent = document.getElementById(`carta-${cartaId}`);
+      btn.addEventListener('click', () => {
+        const isOpen = cartaContent.classList.toggle('open');
+        btn.textContent = isOpen ? '💌 Ocultar carta' : '💌 Carta de este capítulo';
+      });
+    });
+
+    // PDF download
+    document.getElementById('pdf-btn')?.addEventListener('click', async () => {
+      const btn = document.getElementById('pdf-btn');
+      const orig = btn.textContent;
+      btn.textContent = '⏳ Procesando...';
+      btn.disabled = true;
+      try {
+        await generatePDF();
+      } finally {
+        btn.textContent = orig;
+        btn.disabled = false;
+      }
+    });
+  });
+</script>
+
+<style>
+  #access-blocker { display: none; }
+  #access-blocker.active { display: block; position: fixed; inset: 0; z-index: 9999; }
+  #access-blocker.active ~ #book-content { display: none; }
+
+  #book-page {
+    min-height: calc(100vh - 85px);
+    padding: 2rem 1rem 4rem;
+  }
+
+  #book-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .page-header h1 {
+    font-family: 'Lilita One', sans-serif;
+    font-size: 2.5rem;
+    color: #3c376d;
+    margin-bottom: 0.3rem;
+  }
+
+  .page-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #7472af;
+    margin-bottom: 1.5rem;
+  }
+
+  .book-tools {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  #search-input {
+    flex: 1;
+    min-width: 200px;
+    max-width: 400px;
+    padding: 0.75rem 1.2rem;
+    border: 2px solid #ddd;
+    border-radius: 30px;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.95rem;
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #search-input:focus { border-color: #b7a2d0; }
+
+  #chapter-select {
+    flex: 1;
+    min-width: 180px;
+    max-width: 300px;
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 1.2rem;
+    border: 2px solid #ddd;
+    border-radius: 30px;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.9rem;
+    background: white;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237472af' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1.2rem center;
+    background-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  #chapter-select:focus { border-color: #b7a2d0; }
+
+  #pdf-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #6a4a9a, #4a6fa5);
+    color: white;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  #pdf-btn:hover { opacity: 0.9; }
+
+  /* --- Pagination --- */
+  .pagination-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .pagination-nav.bottom {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+  }
+
+  .pag-btn {
+    padding: 0.6rem 1.4rem;
+    border: 2px solid #ddd;
+    border-radius: 30px;
+    background: white;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #3c376d;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pag-btn:hover:not(:disabled) {
+    border-color: #6a4a9a;
+    background: #f0eef8;
+  }
+  .pag-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .pag-indicator {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #7472af;
+    min-width: 160px;
+    text-align: center;
+  }
+
+  /* --- Chapters --- */
+  .chapter { margin-bottom: 1rem; }
+
+  .chapter-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .chapter-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    color: #6a4a9a;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .chapter-title {
+    font-family: 'Lilita One', sans-serif;
+    font-size: 2rem;
+    color: #3c376d;
+    line-height: 1.2;
+    margin-bottom: 0.8rem;
+  }
+
+  .chapter-resumen {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: #7472af;
+    line-height: 1.6;
+    max-width: 650px;
+    margin: 0 auto;
+  }
+
+  .chapter-body p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: #333;
+    margin-bottom: 1.2rem;
+    text-align: justify;
+  }
+
+  .chapter-body mark {
+    background: #fce8b3;
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+
+  /* --- Carta --- */
+  .chapter-carta {
+    margin-top: 2.5rem;
+  }
+
+  .carta-toggle {
+    background: none;
+    border: 2px solid #4a7ab5;
+    border-radius: 30px;
+    padding: 0.6rem 1.5rem;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #4a7ab5;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .carta-toggle:hover {
+    background: #4a7ab5;
+    color: white;
+  }
+
+  .carta-content {
+    display: none;
+    margin-top: 1.5rem;
+    padding: 2rem;
+    background: #f0f4fc;
+    border: 1px solid #c8d4ec;
+    border-left: 5px solid #4a7ab5;
+    border-radius: 12px;
+  }
+
+  .carta-content.open { display: block; }
+
+  .carta-content h3 {
+    font-family: 'Lilita One', sans-serif;
+    font-size: 1.3rem;
+    color: #4a7ab5;
+    margin-bottom: 1rem;
+  }
+
+  .carta-content p {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #555;
+    margin-bottom: 0.8rem;
+  }
+
+  .book-footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: #6a4a9a;
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 900px) {
+    .book-tools {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.6rem;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    #search-input,
+    #chapter-select,
+    #pdf-btn {
+      max-width: 100%;
+      width: 100%;
+      flex: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    #book-page { padding: 1.5rem 0.75rem; }
+    .page-header h1 { font-size: 1.8rem; }
+    .chapter-title { font-size: 1.5rem; }
+    .chapter-body p { font-size: 1rem; }
+    .book-tools { max-width: 100%; }
+    .pagination-nav { gap: 0.8rem; flex-wrap: wrap; }
+    .pag-btn { font-size: 0.8rem; padding: 0.5rem 1rem; }
+    .pag-indicator { min-width: 120px; font-size: 0.8rem; }
+  }
+
+  @media (max-width: 380px) {
+    #book-page { padding: 1rem 0.5rem; }
+    .page-header h1 { font-size: 1.5rem; }
+    .chapter-title { font-size: 1.3rem; }
+    .chapter-resumen { font-size: 0.95rem; }
+    .pagination-nav { gap: 0.4rem; }
+    .pag-btn { font-size: 0.75rem; padding: 0.4rem 0.7rem; }
+    .pag-indicator { min-width: 90px; font-size: 0.72rem; }
+    .carta-content { padding: 1.2rem; }
+    .chapter-carta { margin-top: 1.5rem; }
+    .book-footer { font-size: 0.95rem; }
+  }
+</style>

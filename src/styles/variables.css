@@ -1,0 +1,29 @@
+:root {
+  --color-bg-start: #e8ecf4;
+  --color-bg-end: #d4d8ec;
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #3d3d6e;
+  --color-accent: #4a6fa5;
+  --color-accent-hover: #3a5a8a;
+  --color-accent-light: #6a4a9a;
+  --color-card-bg: rgba(255, 255, 255, 0.82);
+  --color-card-border: rgba(74, 111, 165, 0.25);
+  --color-heart: #4a7ab5;
+  --color-category-1: #4a6fa5;
+  --color-category-2: #5a5aa5;
+  --color-category-3: #6a4a9a;
+  --color-category-4: #3d5a8a;
+  --color-category-5: #2d3a6a;
+  --shadow-sm: 0 2px 8px rgba(26, 26, 46, 0.08);
+  --shadow-md: 0 8px 24px rgba(26, 26, 46, 0.12);
+  --shadow-lg: 0 16px 48px rgba(26, 26, 46, 0.18);
+  --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: all 0.2s ease;
+  --header-height: 85px;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --header-height: 75px;
+  }
+}

@@ -1,0 +1,160 @@
+---
+---
+
+<div class="modal-backdrop" id="playlist-modal">
+  <div class="playlist-modal-wrapper">
+    <button class="close-modal-btn" id="close-playlist-btn">✕</button>
+    <div class="playlist-modal-header">
+      <span class="playlist-modal-icon">🎶</span>
+      <h2 class="playlist-modal-title">Playlist Completa</h2>
+      <p class="playlist-modal-subtitle">Tu banda sonora de amor</p>
+    </div>
+    <ul class="playlist-modal-list" id="playlist-modal-list"></ul>
+
+    <div class="playlist-config-section">
+      <button class="playlist-config-toggle" id="playlist-config-toggle">
+        ⚙️ Configurar playlist de YouTube
+      </button>
+      <div class="playlist-config-body" id="playlist-config-body">
+        <div class="playlist-config-form">
+          <label class="playlist-config-label">URL de la playlist:</label>
+          <div class="playlist-config-row">
+            <input type="url" class="playlist-config-input" id="playlist-url-input"
+              placeholder="https://youtube.com/playlist?list=..." />
+            <button class="playlist-config-btn" id="playlist-fetch-btn">Cargar</button>
+          </div>
+          <div class="playlist-config-apikey" id="playlist-apikey-section">
+            <label class="playlist-config-label">API Key de YouTube (opcional):</label>
+            <input type="text" class="playlist-config-input" id="playlist-apikey-input"
+              placeholder="AIzaSy..." />
+            <p class="playlist-config-hint">Si la carga falla, necesitas una API Key.
+              <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Obtener una</a>
+              (habilitar YouTube Data API v3)</p>
+          </div>
+          <div class="playlist-status" id="playlist-status"></div>
+          <div class="playlist-preview" id="playlist-preview"></div>
+        </div>
+        <button class="playlist-reset-btn" id="playlist-reset-btn">Usar playlist por defecto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { getPlaylist, getCurrentTrackIndex, isMusicPlaying, skipTo, fetchYouTubePlaylist, saveMusicPlaylist, resetMusicPlaylist, updateMusicUI, loadMusicPlaylist } from '../scripts/music.js';
+
+  const STORAGE_KEY_PLAYLIST_URL = 'dd_playlist_url';
+  const STORAGE_KEY_API_KEY = 'dd_yt_api_key';
+
+  function renderPlaylistModal() {
+    const list = document.getElementById('playlist-modal-list');
+    if (!list) return;
+
+    list.innerHTML = '';
+    const playlist = getPlaylist();
+    const currentIdx = getCurrentTrackIndex();
+
+    playlist.forEach((t, idx) => {
+      const li = document.createElement('li');
+      li.className = 'playlist-modal-item';
+      if (idx === currentIdx) li.classList.add('active-track');
+
+      const videoId = t.isYouTube ? getYouTubeId(t.source) : null;
+      const thumbHtml = videoId
+        ? `<img src="https://img.youtube.com/vi/${videoId}/default.jpg" alt="" loading="lazy" style="width:40px;height:40px;border-radius:8px;object-fit:cover;" />`
+        : '<span style="font-size:1.4rem">🎵</span>';
+
+      li.innerHTML = `
+        <span class="music-item-num" style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:rgba(92,82,155,0.4);min-width:24px;">${idx + 1}</span>
+        <div style="width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--color-accent-light),var(--color-accent));display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${thumbHtml}</div>
+        <div class="music-item-info">
+          <div class="music-item-title">${t.title}</div>
+        </div>
+        ${idx === currentIdx && isMusicPlaying() ? '<div class="music-item-playing-bars" style="display:flex"><span></span><span></span><span></span></div>' : ''}
+      `;
+
+      li.addEventListener('click', () => {
+        skipTo(idx);
+        updateMusicUI();
+        closePlaylistModal();
+      });
+      list.appendChild(li);
+    });
+  }
+
+  function closePlaylistModal() {
+    document.getElementById('playlist-modal')?.classList.remove('active');
+  }
+
+  function getYouTubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('close-playlist-btn')?.addEventListener('click', closePlaylistModal);
+
+    document.getElementById('playlist-modal')?.addEventListener('click', (e) => {
+      if (e.target === document.getElementById('playlist-modal')) closePlaylistModal();
+    });
+
+    document.getElementById('playlist-config-toggle')?.addEventListener('click', () => {
+      const body = document.getElementById('playlist-config-body');
+      if (!body) return;
+      const isOpen = body.style.display === 'block';
+      body.style.display = isOpen ? 'none' : 'block';
+      if (!isOpen) {
+        const savedUrl = localStorage.getItem(STORAGE_KEY_PLAYLIST_URL) || '';
+        const urlInput = document.getElementById('playlist-url-input');
+        if (urlInput) urlInput.value = savedUrl;
+        const savedApiKey = localStorage.getItem(STORAGE_KEY_API_KEY) || '';
+        const apiKeyInput = document.getElementById('playlist-apikey-input');
+        if (apiKeyInput) apiKeyInput.value = savedApiKey;
+      }
+    });
+
+    document.getElementById('playlist-fetch-btn')?.addEventListener('click', async () => {
+      const input = document.getElementById('playlist-url-input');
+      const statusEl = document.getElementById('playlist-status');
+      const previewEl = document.getElementById('playlist-preview');
+      const apiKeyInput = document.getElementById('playlist-apikey-input');
+      if (!input || !statusEl) return;
+
+      const url = input.value.trim();
+      if (!url) { statusEl.textContent = '⚠️ Ingresa una URL de playlist'; return; }
+
+      statusEl.innerHTML = '⏳ Cargando playlist...';
+      if (previewEl) previewEl.innerHTML = '';
+
+      const apiKey = apiKeyInput?.value.trim() || '';
+
+      try {
+        const tracks = await fetchYouTubePlaylist(url, apiKey);
+        saveMusicPlaylist(tracks, url);
+        if (apiKey) localStorage.setItem(STORAGE_KEY_API_KEY, apiKey);
+        statusEl.innerHTML = `✅ ${tracks.length} canciones cargadas`;
+        if (previewEl) {
+          previewEl.innerHTML = tracks.slice(0, 5).map((t, i) =>
+            `<div class="playlist-preview-item">${i + 1}. ${t.title}</div>`
+          ).join('') + (tracks.length > 5 ? `<div class="playlist-preview-item">... y ${tracks.length - 5} más</div>` : '');
+        }
+        updateMusicUI();
+        setTimeout(closePlaylistModal, 1000);
+      } catch (err) {
+        statusEl.innerHTML = `❌ ${err.message}`;
+      }
+    });
+
+    document.getElementById('playlist-reset-btn')?.addEventListener('click', () => {
+      resetMusicPlaylist();
+      loadMusicPlaylist();
+      updateMusicUI();
+      const statusEl = document.getElementById('playlist-status');
+      const previewEl = document.getElementById('playlist-preview');
+      if (statusEl) statusEl.innerHTML = '✅ Playlist por defecto restaurada';
+      if (previewEl) previewEl.innerHTML = '';
+      setTimeout(closePlaylistModal, 800);
+    });
+  });
+</script>

@@ -1,0 +1,32 @@
+---
+import { capitulos } from '../data/capitulos.js';
+const totalCount = capitulos.length;
+---
+
+<div class="controls-panel">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-input" placeholder="Buscar un capítulo especial..." />
+    <button id="clear-search" class="clear-btn" style="display: none;">✕</button>
+  </div>
+
+  <div class="filters-row">
+    <div class="filter-actions">
+      <button class="filter-action-btn" id="fav-filter-btn" title="Ver guardados como favoritos">
+        <span class="btn-icon">❤️</span>
+        <span class="btn-text">Mis Favoritas</span>
+        <span class="fav-count" id="fav-count-badge">0</span>
+      </button>
+
+      <button class="filter-action-btn surprise-btn" id="surprise-envelope-btn" title="Sobre sorpresa - Capítulo aleatorio">
+        <span class="btn-icon">✉️</span>
+        <span class="btn-text">Sobre Sorpresa</span>
+      </button>
+
+      <button class="filter-action-btn pdf-btn" id="pdf-download-btn" title="Descargar libro en PDF">
+        <span class="btn-icon">📄</span>
+        <span class="btn-text">Descargar PDF</span>
+      </button>
+    </div>
+  </div>
+</div>

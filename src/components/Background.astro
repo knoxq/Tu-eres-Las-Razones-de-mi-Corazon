@@ -1,0 +1,51 @@
+---
+---
+
+<div class="dreamy-bg">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+  <div class="particles" id="particles-container"></div>
+</div>
+
+<script>
+  (function () {
+    const container = document.getElementById('particles-container');
+    if (!container) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const particleCount = 20;
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+
+      const size = Math.random() * 12 + 4;
+      const left = Math.random() * 100;
+      const duration = Math.random() * 20 + 15;
+      const delay = Math.random() * -20;
+      const type = Math.random() > 0.5 ? 'petal' : 'star';
+
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      particle.style.left = `${left}%`;
+      particle.style.animationDuration = `${duration}s`;
+      particle.style.animationDelay = `${delay}s`;
+
+      if (type === 'petal') {
+        particle.style.background = 'radial-gradient(circle, rgba(183,162,208,0.5) 0%, rgba(141,162,229,0.2) 100%)';
+        particle.style.borderRadius = '50% 0% 50% 50%';
+        particle.style.transform = `rotate(${Math.random() * 360}deg)`;
+      } else {
+        particle.style.background = 'rgba(255,255,255,0.9)';
+        particle.style.borderRadius = '50%';
+        particle.style.boxShadow = '0 0 8px 3px rgba(183,162,208,0.4)';
+        particle.style.opacity = (Math.random() * 0.4 + 0.2).toString();
+      }
+
+      frag.appendChild(particle);
+    }
+    container.appendChild(frag);
+  })();
+</script>

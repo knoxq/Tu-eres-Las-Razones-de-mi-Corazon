@@ -1,0 +1,215 @@
+---
+const releaseDate = new Date('2026-07-02T00:00:00');
+---
+
+<div class="coming-soon-overlay">
+  <div class="coming-soon-card">
+    <div class="cs-icon">🖤</div>
+    <h1 class="cs-title">Próximamente</h1>
+    <p class="cs-subtitle">El libro estará disponible muy pronto...</p>
+    <div class="cs-countdown" id="cs-countdown">
+      <div class="cs-time-block">
+        <span class="cs-time-number" id="cs-days">00</span>
+        <span class="cs-time-label">Días</span>
+      </div>
+      <div class="cs-time-sep">:</div>
+      <div class="cs-time-block">
+        <span class="cs-time-number" id="cs-hours">00</span>
+        <span class="cs-time-label">Horas</span>
+      </div>
+      <div class="cs-time-sep">:</div>
+      <div class="cs-time-block">
+        <span class="cs-time-number" id="cs-minutes">00</span>
+        <span class="cs-time-label">Minutos</span>
+      </div>
+      <div class="cs-time-sep">:</div>
+      <div class="cs-time-block">
+        <span class="cs-time-number" id="cs-seconds">00</span>
+        <span class="cs-time-label">Segundos</span>
+      </div>
+    </div>
+    <p class="cs-date">2 de Julio de 2026</p>
+    <div class="cs-hearts" id="cs-hearts-container"></div>
+  </div>
+</div>
+
+<style>
+  .coming-soon-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg, #0d0b1e);
+  }
+
+  .coming-soon-card {
+    text-align: center;
+    padding: 3rem 2rem;
+    max-width: 500px;
+    width: 90%;
+  }
+
+  .cs-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: csPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes csPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  .cs-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    color: var(--color-heart, #4a7ab5);
+    margin: 0 0 0.5rem;
+    letter-spacing: 2px;
+  }
+
+  .cs-subtitle {
+    font-family: 'Quicksand', sans-serif;
+    color: var(--color-accent-light, #b7a2d0);
+    font-size: 1.1rem;
+    margin: 0 0 2rem;
+  }
+
+  .cs-countdown {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .cs-time-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cs-time-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--color-primary, #3c376d);
+    line-height: 1;
+    min-width: 2ch;
+    display: block;
+  }
+
+  .cs-time-label {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.75rem;
+    color: var(--color-accent, #7472af);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 0.25rem;
+  }
+
+  .cs-time-sep {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--color-heart, #4a7ab5);
+    padding-bottom: 1rem;
+  }
+
+  .cs-date {
+    font-family: 'Playfair Display', serif;
+    color: var(--color-accent-light, #b7a2d0);
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+
+  .cs-hearts {
+    margin-top: 2rem;
+    font-size: 1.5rem;
+    letter-spacing: 0.5rem;
+  }
+
+  @media (max-width: 480px) {
+    .coming-soon-card {
+      padding: 2rem 1rem;
+    }
+
+    .cs-icon {
+      font-size: 3rem;
+    }
+
+    .cs-title {
+      font-size: 2.5rem;
+    }
+
+    .cs-subtitle {
+      font-size: 0.95rem;
+    }
+
+    .cs-countdown {
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    .cs-time-number {
+      font-size: 2.2rem;
+    }
+
+    .cs-time-label {
+      font-size: 0.65rem;
+    }
+
+    .cs-time-sep {
+      font-size: 1.8rem;
+      padding-bottom: 0.7rem;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .cs-countdown {
+      gap: 0.4rem 0.15rem;
+    }
+
+    .cs-time-number {
+      font-size: 1.8rem;
+    }
+
+    .cs-time-sep {
+      font-size: 1.5rem;
+    }
+
+    .cs-title {
+      font-size: 2rem;
+    }
+  }
+</style>
+
+<script>
+  const RELEASE = new Date('2026-07-02T00:00:00').getTime();
+
+  function updateCountdown() {
+    const now = Date.now();
+    const diff = RELEASE - now;
+
+    if (diff <= 0) {
+      window.location.reload();
+      return;
+    }
+
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+
+    const el = (id) => document.getElementById(id);
+    if (el('cs-days')) el('cs-days').textContent = String(days).padStart(2, '0');
+    if (el('cs-hours')) el('cs-hours').textContent = String(hours).padStart(2, '0');
+    if (el('cs-minutes')) el('cs-minutes').textContent = String(minutes).padStart(2, '0');
+    if (el('cs-seconds')) el('cs-seconds').textContent = String(seconds).padStart(2, '0');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  });
+</script>
