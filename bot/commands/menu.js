@@ -9,11 +9,11 @@ Hola, soy el bot del libro — TU ERES las 12 razones DE MI CORAZON —. Usa los
 🌐 *!pagina* o *!link*
 Enlace de la página web para leer el libro y las cartas.
 
-📖 *!capitulo* o *!capitulodia*
-Capítulo destacado de hoy (basado en la fecha).
+🔒 *!capitulo* o *!capitulodia*
+Capítulo destacado — disponible el 2 de julio.
 
-💌 *!carta* o *!sorpresa*
-Carta de amor aleatoria del libro.
+🔒 *!carta* o *!sorpresa*
+Carta de amor — disponible el 2 de julio.
 
 📅 *!cuenta* o *!countdown*
 Cuenta regresiva al lanzamiento (2 de julio).
