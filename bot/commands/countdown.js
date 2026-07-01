@@ -28,6 +28,6 @@ para el lanzamiento oficial del libro.
 
 *2 de Julio de 2026* 💝
 
-— Density Doppler`;
+— Tú Eres las Razones de Mi Corazón`;
   return message.reply(text);
 }

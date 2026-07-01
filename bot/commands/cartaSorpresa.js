@@ -24,6 +24,6 @@ export function execute(message) {
 
 ${preview}
 
-— Density Doppler 💖`;
+— Tú Eres las Razones de Mi Corazón 💖`;
   return message.reply(text);
 }

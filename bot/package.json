@@ -1,8 +1,8 @@
 {
-  "name": "density-doppler-bot",
+  "name": "tu-eres-las-razones-bot",
   "version": "1.0.0",
   "type": "module",
-  "description": "WhatsApp bot for Density Doppler - book reminder and chapter sender",
+  "description": "WhatsApp bot para Tú Eres las Razones de Mi Corazón - recordatorios y envío de capítulos",
   "main": "index.js",
   "scripts": {
     "start": "PUPPETEER_SKIP_DOWNLOAD=true node index.js",

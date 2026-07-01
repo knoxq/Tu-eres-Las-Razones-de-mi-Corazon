@@ -1,6 +1,7 @@
 import pkg from 'whatsapp-web.js';
 const { Client, LocalAuth } = pkg;
 import qrcode from 'qrcode-terminal';
+import schedule from 'node-schedule';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -37,14 +38,107 @@ fs.readdirSync(commandsDir).forEach(file => {
 // Bot config
 const ADMIN_NUMBER = ''; // Opcional: número admin para notificaciones
 const ADMIN_KEY = 'dd-amor-2026';
-const GROUP_ID = '120363428674226150@g.us'; // ID del grupo donde el bot debe responder
-// Para obtener el ID: envía "!chatid" al bot desde el grupo
+const GROUP_IDS = [
+  '120363428674226150@g.us', // Grupo 1
+  '120363412907627446@g.us', // Grupo 2
+];
+// Para obtener el ID de un nuevo grupo: envía "!chatid" al bot desde ese grupo
+
+// Fecha de lanzamiento del libro
+const RELEASE_DATE = new Date('2026-07-02T00:00:00');
+
+// Envía un mensaje a todos los grupos configurados
+async function sendToGroups(text) {
+  for (const groupId of GROUP_IDS) {
+    try {
+      await client.sendMessage(groupId, text);
+      console.log(`📤 Recordatorio enviado a ${groupId}`);
+    } catch (err) {
+      console.error(`✗ Error al enviar a ${groupId}:`, err.message);
+    }
+  }
+}
+
+// Programa los recordatorios automáticos hacia el lanzamiento
+function scheduleCountdownReminders() {
+  const now = Date.now();
+
+  // Si ya pasó el lanzamiento, no programar nada
+  if (now >= RELEASE_DATE.getTime()) {
+    console.log('ℹ️ El lanzamiento ya pasó, no se programan recordatorios.');
+    return;
+  }
+
+  // Recordatorio cada hora (en el minuto 0) mientras no se haya lanzado
+  const hourlyJob = schedule.scheduleJob('0 * * * *', async () => {
+    const diff = RELEASE_DATE.getTime() - Date.now();
+    if (diff <= 0) {
+      hourlyJob.cancel();
+      return;
+    }
+
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+
+    let timeLeft;
+    if (days > 0) {
+      timeLeft = `${days}d ${hours}h ${minutes}m`;
+    } else if (hours > 0) {
+      timeLeft = `${hours}h ${minutes}m`;
+    } else {
+      timeLeft = `${minutes}m`;
+    }
+
+    const text = `⏰ *Cuenta regresiva*
+
+Quedan *${timeLeft}* para el lanzamiento del libro.
+
+*2 de Julio de 2026* 💝
+
+Usa *!cuenta* para ver el tiempo exacto.`;
+
+    await sendToGroups(text);
+  });
+
+  // 10 minutos antes del lanzamiento
+  const tenMinDate = new Date(RELEASE_DATE.getTime() - 10 * 60000);
+  if (tenMinDate.getTime() > now) {
+    schedule.scheduleJob(tenMinDate, async () => {
+      const text = `🚨 *¡Faltan 10 minutos!* 🚨
+
+El libro se desbloquea en *10 minutos*.
+
+Prepárate, very pronto podrás leerlo en:
+https://tu-eres-las-razones-de-mi-corazon.pages.dev/libro 💖`;
+
+      await sendToGroups(text);
+    });
+  }
+
+  // 5 minutos antes del lanzamiento
+  const fiveMinDate = new Date(RELEASE_DATE.getTime() - 5 * 60000);
+  if (fiveMinDate.getTime() > now) {
+    schedule.scheduleJob(fiveMinDate, async () => {
+      const text = `🚨 *¡Faltan 5 minutos!* 🚨
+
+El libro se desbloquea en *5 minutos*.
+
+Entra ahora para que estés listo:
+https://tu-eres-las-razones-de-mi-corazon.pages.dev/libro 💖`;
+
+      await sendToGroups(text);
+    });
+  }
+
+  console.log('✅ Recordatorios programados: cada hora + 10 y 5 min antes del lanzamiento');
+}
 
 // State compartido entre comandos (búsquedas pendientes, etc.)
 const botState = { pendingSearches: new Map() };
 
 const client = new Client({
-  authStrategy: new LocalAuth({ clientId: 'density-doppler' }),
+  authStrategy: new LocalAuth({ clientId: 'tu-eres-las-razones' }),
   puppeteer: {
     executablePath: '/home/z-knoxzx/.cache/puppeteer/chrome-headless-shell/linux-130.0.6723.58/chrome-headless-shell-linux64/chrome-headless-shell',
     headless: true,
@@ -69,7 +163,7 @@ client.on('qr', (qr) => {
 });
 
 client.on('ready', async () => {
-  console.log('🤖 Bot de Density Doppler conectado y listo!');
+  console.log('🤖 Bot de Tú Eres las Razones de Mi Corazón conectado y listo!');
   console.log(`📅 Fecha de lanzamiento: 2 de Julio de 2026`);
   console.log(`🔑 Admin key: ${ADMIN_KEY}`);
   console.log(`📚 ${loadedCommands} comandos disponibles\n`);
@@ -81,8 +175,10 @@ client.on('ready', async () => {
     console.log('ℹ️ No se pudo cambiar el nombre del bot:', err.message);
   }
 
+  scheduleCountdownReminders();
+
   if (ADMIN_NUMBER) {
-    client.sendMessage(ADMIN_NUMBER, '🤖 Bot Density Doppler iniciado correctamente.');
+    client.sendMessage(ADMIN_NUMBER, '🤖 Bot Tú Eres las Razones de Mi Corazón iniciado correctamente.');
   }
 });
 
@@ -136,13 +232,13 @@ client.on('message', async (message) => {
   // Solo procesar comandos en chats de texto
   if (message.type !== 'chat' && message.type !== 'text') return;
 
-  // Debug: mostrar grupos donde se reciben mensajes si GROUP_ID no está configurado
-  if (isGroup && !GROUP_ID) {
+  // Debug: mostrar grupos donde se reciben mensajes si no hay grupos configurados
+  if (isGroup && GROUP_IDS.length === 0) {
     console.log(`💬 Grupo detectado: ${message.from} — "${message.body}"`);
   }
 
-  // Si GROUP_ID está configurado, solo responder en ese grupo
-  if (GROUP_ID && message.from !== GROUP_ID) return;
+  // Solo responder en los grupos configurados
+  if (GROUP_IDS.length > 0 && !GROUP_IDS.includes(message.from)) return;
 
   // Solo responder a comandos que empiecen con !
   if (!text.startsWith('!')) return;
@@ -200,5 +296,5 @@ client.on('disconnected', (reason) => {
   scheduleReconnect();
 });
 
-console.log('🚀 Iniciando bot de Density Doppler...');
+console.log('🚀 Iniciando bot de Tú Eres las Razones de Mi Corazón...');
 startBot();

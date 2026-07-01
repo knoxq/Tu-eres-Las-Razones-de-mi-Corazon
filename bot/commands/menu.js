@@ -4,7 +4,7 @@ export const aliases = ['menú', 'ayuda', 'help', 'comandos'];
 export function execute(message) {
   const menuText = `🌟 *TU ERES las razones DE MI CORAZON* 🌟
 
-Hola, soy el bot del libro — TU ERES las 12 razones DE MI CORAZON —. Usa los comandos con el prefijo *!*:
+Hola, soy el bot del libro — TU ERES las razones DE MI CORAZON —. Usa los comandos con el prefijo *!*:
 
 🌐 *!pagina* o *!link*
 Enlace de la página web para leer el libro y las cartas.
