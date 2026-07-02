@@ -1,6 +1,7 @@
 ---
 import Background from '../components/Background.astro';
 import Header from '../components/Header.astro';
+import AnniversaryModal from '../components/AnniversaryModal.astro';
 import '../styles/variables.css';
 import '../styles/global.css';
 import '../styles/background.css';
@@ -32,6 +33,8 @@ import '../styles/modals.css';
     <audio id="bg-audio" loop src="https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3"></audio>
 
     <slot />
+
+    <AnniversaryModal />
 
     <script>
       import { setupViewTransitions } from '../scripts/transitions.js';

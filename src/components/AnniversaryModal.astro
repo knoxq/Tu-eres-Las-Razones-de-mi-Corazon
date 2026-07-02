@@ -1,0 +1,137 @@
+---
+// Modal de aniversario que aparece al terminar el countdown
+// y durante los siguientes 2 días (2-4 julio 2026)
+const RELEASE = new Date('2026-07-02T00:00:00-06:00').getTime();
+const WINDOW_END = RELEASE + 2 * 24 * 60 * 60 * 1000;
+const isActive = Date.now() >= RELEASE && Date.now() < WINDOW_END;
+---
+
+<div class="anniv-overlay" id="anniv-modal" style={isActive ? '' : 'display:none;'}>
+  <div class="anniv-card">
+    <div class="anniv-hearts">💝</div>
+    <h1 class="anniv-title">Felices 1 año y 6 meses</h1>
+    <p class="anniv-text">
+      Gracias por todo lo vivido miamor y por todo lo que nos falta vivir juntos, se que ha sido bastante dificil ultimamente las cosas pero te juro que eso no ha hecho que te ame menos, de hecho, te amo mucho mas de lo que imaginas. Espero disfrutes de este libro, esta hecho con mucho amor y dedicado todo para ti. Te amo mucho mi niña preciosa
+    </p>
+    <button class="anniv-btn" id="anniv-close">Cerrar</button>
+  </div>
+</div>
+
+<style>
+  .anniv-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    animation: annivFadeIn 0.5s ease-out;
+  }
+
+  @keyframes annivFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .anniv-card {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    max-width: 500px;
+    width: 90%;
+    background: linear-gradient(145deg, #1a1626, #241a3a);
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(106, 74, 154, 0.4);
+    border: 1px solid rgba(183, 162, 208, 0.2);
+    animation: annivSlideUp 0.6s ease-out;
+  }
+
+  @keyframes annivSlideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .anniv-hearts {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    animation: annivBeat 1.5s ease-in-out infinite;
+  }
+
+  @keyframes annivBeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+
+  .anniv-title {
+    font-family: 'Lilita One', sans-serif;
+    font-size: 2rem;
+    color: #b7a2d0;
+    margin: 0 0 1.2rem;
+    text-shadow: 0 0 20px rgba(183, 162, 208, 0.3);
+  }
+
+  .anniv-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #d4cde0;
+    margin: 0 0 1.8rem;
+    text-align: justify;
+  }
+
+  .anniv-btn {
+    padding: 0.7rem 2.5rem;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #6a4a9a, #4a6fa5);
+    color: white;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .anniv-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(106, 74, 154, 0.5);
+  }
+
+  .anniv-btn:active {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: 480px) {
+    .anniv-card { padding: 2rem 1.5rem; }
+    .anniv-title { font-size: 1.6rem; }
+    .anniv-text { font-size: 0.9rem; }
+  }
+</style>
+
+<script>
+  const RELEASE = new Date('2026-07-02T00:00:00-06:00').getTime();
+  const WINDOW_END = RELEASE + 2 * 24 * 60 * 60 * 1000;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('anniv-modal');
+    if (!modal) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const isAdmin = params.get('access') === 'dd-amor-2026';
+
+    const now = Date.now();
+    const isActive = (now >= RELEASE && now < WINDOW_END) || isAdmin;
+    if (!isActive) return;
+
+    const wasClosed = sessionStorage.getItem('anniv-modal-closed');
+    if (wasClosed === '1' && !isAdmin) return;
+
+    modal.style.display = 'flex';
+
+    document.getElementById('anniv-close')?.addEventListener('click', () => {
+      modal.style.display = 'none';
+      sessionStorage.setItem('anniv-modal-closed', '1');
+    });
+  });
+</script>
