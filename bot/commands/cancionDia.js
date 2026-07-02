@@ -139,7 +139,7 @@ _Playlist: ${cachedData.playlistName}_ 💖`;
 
     // Send playlist cover image with song info as caption
     try {
-      const coverUrl = cachedData.playlistThumbUrl || track.thumbnail;
+      const coverUrl = track.thumbnail;
       const media = await MessageMedia.fromUrl(coverUrl, { unsafeMime: true });
       await client.sendMessage(message.from, media, { caption: songText });
     } catch {

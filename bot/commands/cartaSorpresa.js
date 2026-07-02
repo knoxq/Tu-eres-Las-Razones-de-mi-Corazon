@@ -1,6 +1,6 @@
 import { capitulos } from '../../src/data/capitulos.js';
 
-const RELEASE_DATE = new Date('2026-07-02T00:00:00');
+const RELEASE_DATE = new Date('2026-07-02T00:00:00-06:00');
 
 export const name = 'carta sorpresa';
 export const aliases = ['carta', 'sorpresa', 'cartasorpresa', 'cartas'];

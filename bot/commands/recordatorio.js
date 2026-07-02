@@ -13,7 +13,7 @@ export function execute(message, client) {
     return message.reply('⏰ Ya tienes un recordatorio programado. Te avisaré el 2 de julio cuando el libro esté disponible 💖');
   }
 
-  const releaseDate = new Date('2026-07-02T00:00:00');
+  const releaseDate = new Date('2026-07-02T00:00:00-06:00');
 
   const job = schedule.scheduleJob(releaseDate, async () => {
     try {
