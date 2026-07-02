@@ -78,13 +78,16 @@ function scheduleCountdownReminders() {
     return;
   }
 
-  // Recordatorio cada hora (en el minuto 0) mientras no se haya lanzado
+  // Recordatorio cada hora (en el minuto 0) solo si quedan 3 horas o menos
   const hourlyJob = schedule.scheduleJob('0 * * * *', async () => {
     const diff = RELEASE_DATE.getTime() - Date.now();
     if (diff <= 0) {
       hourlyJob.cancel();
       return;
     }
+
+    // Solo enviar si quedan 3 horas o menos
+    if (diff > 3 * 3600000) return;
 
     const days = Math.floor(diff / 86400000);
     const hours = Math.floor((diff % 86400000) / 3600000);
@@ -185,6 +188,40 @@ client.on('ready', async () => {
   }
 
   scheduleCountdownReminders();
+
+  // Mensaje de encendido
+  const now = Date.now();
+  const diff = RELEASE_DATE.getTime() - now;
+
+  let bootText;
+  if (diff > 0) {
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+
+    let timeLeft;
+    if (days > 0) {
+      timeLeft = `${days}d ${hours}h ${minutes}m`;
+    } else if (hours > 0) {
+      timeLeft = `${hours}h ${minutes}m`;
+    } else {
+      timeLeft = `${minutes}m`;
+    }
+
+    bootText = `🤖 *Bot encendido* ✅
+
+Faltan *${timeLeft}* para el lanzamiento del libro.
+
+*3 de Julio de 2026 — 00:00 (Hora de Aguascalientes, México)* 💝`;
+  } else {
+    bootText = `🤖 *Bot encendido* ✅
+
+El libro ya está disponible 💖
+
+Léelo aquí: https://tu-eres-las-razones-de-mi-corazon.pages.dev/libro`;
+  }
+
+  await sendToGroups(bootText);
 
   if (ADMIN_NUMBER) {
     client.sendMessage(ADMIN_NUMBER, '🤖 Bot Tú Eres las Razones de Mi Corazón iniciado correctamente.');
