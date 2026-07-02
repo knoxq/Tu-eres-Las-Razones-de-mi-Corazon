@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import { capitulos } from '../data/capitulos.js';
+import { prologo, capitulos, epilogo } from '../data/capitulos.js';
 
 const COLORS = {
   primary: [26, 26, 46],
@@ -7,7 +7,6 @@ const COLORS = {
   accent: [74, 111, 165],
   accentLight: [106, 74, 154],
   heart: [74, 122, 181],
-  bg: [240, 243, 250],
 };
 
 async function loadImage(url) {
@@ -22,11 +21,6 @@ async function loadImage(url) {
 
 function stripHTML(str) {
   return str.replace(/<[^>]*>/g, '');
-}
-
-function addPageBackground(doc) {
-  doc.setFillColor(...COLORS.bg);
-  doc.rect(0, 0, 210, 297, 'F');
 }
 
 function addFooter(doc, pageNum) {
@@ -48,6 +42,14 @@ function wrapText(doc, text, x, y, maxWidth, lineHeight, opts = {}) {
     doc.setTextColor(...COLORS.secondary);
   }
 
+  function handleNewPage() {
+    addFooter(doc, doc.internal.getNumberOfPages());
+    doc.addPage();
+    if (opts.onNewPage) opts.onNewPage();
+    ensureStyle();
+    currentY = 25;
+  }
+
   for (const para of paragraphs) {
     if (para.trim() === '') {
       currentY += lineHeight * 0.7;
@@ -62,11 +64,7 @@ function wrapText(doc, text, x, y, maxWidth, lineHeight, opts = {}) {
       const testLine = line + (line ? ' ' : '') + word;
       if (doc.getTextWidth(testLine) + indent > maxWidth && line) {
         if (currentY + lineHeight > 275) {
-          addFooter(doc, doc.internal.getNumberOfPages());
-          doc.addPage();
-          addPageBackground(doc);
-          ensureStyle();
-          currentY = 25;
+          handleNewPage();
         }
         doc.text(line, x + (isLineStart && !hasRendered ? firstLineIndent : 0), currentY);
         hasRendered = true;
@@ -80,11 +78,7 @@ function wrapText(doc, text, x, y, maxWidth, lineHeight, opts = {}) {
     }
     if (line) {
       if (currentY + lineHeight > 275) {
-        addFooter(doc, doc.internal.getNumberOfPages());
-        doc.addPage();
-        addPageBackground(doc);
-        ensureStyle();
-        currentY = 25;
+        handleNewPage();
       }
       doc.text(line, x + (!hasRendered ? firstLineIndent : 0), currentY);
       hasRendered = true;
@@ -95,25 +89,54 @@ function wrapText(doc, text, x, y, maxWidth, lineHeight, opts = {}) {
   return currentY;
 }
 
+function addChapterHeader(doc, item, margin, pageW) {
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(...COLORS.primary);
+  doc.text(`Capítulo ${item.id}`, margin, 18);
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...COLORS.accentLight);
+  doc.text(stripHTML(item.titulo), margin + 30, 18);
+
+  doc.setDrawColor(...COLORS.accentLight);
+  doc.setLineWidth(0.3);
+  doc.line(margin, 22, pageW - margin, 22);
+}
+
 export async function generatePDF() {
   const doc = new jsPDF('p', 'mm', 'a4');
   const pageW = 210;
   const margin = 25;
   const maxTextW = pageW - margin * 2;
   const lineH = 6;
-  const chapterStartPages = [];
 
   // ============================================================
-  // COVER — portada.png full page
+  // LOAD IMAGES
   // ============================================================
+  const plantillaData = await loadImage('/img/plantilla.png');
+  const contenidoData = await loadImage('/img/contenido.png');
   const portadaData = await loadImage('/img/portada.png');
+  const contraportadaData = await loadImage('/img/contraportada.png');
+
+  function addTitleBg() {
+    doc.addImage(plantillaData, 'PNG', 0, 0, 210, 297);
+  }
+
+  function addContentBg() {
+    doc.addImage(contenidoData, 'PNG', 0, 0, 210, 297);
+  }
+
+  // ============================================================
+  // COVER
+  // ============================================================
   doc.addImage(portadaData, 'PNG', 0, 0, 210, 297);
 
   // ============================================================
   // TABLE OF CONTENTS
   // ============================================================
   doc.addPage();
-  addPageBackground(doc);
+  addTitleBg();
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
@@ -126,6 +149,14 @@ export async function generatePDF() {
 
   let tocY = 52;
   doc.setFontSize(11);
+
+  // Prólogo entry
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(...COLORS.accent);
+  doc.text('Prólogo', margin, tocY);
+  tocY += 10;
+
+  // Chapter entries
   for (const ch of capitulos) {
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...COLORS.primary);
@@ -136,15 +167,49 @@ export async function generatePDF() {
     tocY += 10;
   }
 
+  // Epílogo entry
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(...COLORS.accent);
+  doc.text('Epílogo', margin, tocY);
+
   addFooter(doc, 2);
+
+  // ============================================================
+  // PRÓLOGO
+  // ============================================================
+  doc.addPage();
+  addTitleBg();
+  const prologoPage = doc.internal.getNumberOfPages();
+
+  doc.setFillColor(...COLORS.accentLight);
+  doc.rect(margin, 90, pageW - margin * 2, 1, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(...COLORS.primary);
+  doc.text('Prólogo', pageW / 2, 115, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.setTextColor(...COLORS.secondary);
+
+  let yPos = 135;
+  wrapText(doc, stripHTML(prologo.contenido), margin, yPos, maxTextW, lineH, {
+    firstLineIndent: 5,
+    onNewPage: addTitleBg,
+  });
+
+  addFooter(doc, prologoPage);
 
   // ============================================================
   // CHAPTER PAGES
   // ============================================================
+  const chapterStartPages = [];
+
   for (const item of capitulos) {
     // Chapter title page
     doc.addPage();
-    addPageBackground(doc);
+    addTitleBg();
     chapterStartPages.push({ id: item.id, page: doc.internal.getNumberOfPages() });
 
     doc.setFillColor(...COLORS.accentLight);
@@ -169,61 +234,83 @@ export async function generatePDF() {
 
     // Chapter content
     doc.addPage();
-    addPageBackground(doc);
+    addContentBg();
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...COLORS.primary);
-    doc.text(`Capítulo ${item.id}`, margin, 18);
-    doc.setFont('helvetica', 'italic');
-    doc.setFontSize(8.5);
-    doc.setTextColor(...COLORS.accentLight);
-    doc.text(stripHTML(item.titulo), margin + 30, 18);
-
-    doc.setDrawColor(...COLORS.accentLight);
-    doc.setLineWidth(0.3);
-    doc.line(margin, 22, pageW - margin, 22);
+    addChapterHeader(doc, item, margin, pageW);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9.5);
     doc.setTextColor(...COLORS.secondary);
 
-    let yPos = 32;
-    yPos = wrapText(doc, stripHTML(item.contenido), margin, yPos, maxTextW, lineH, { firstLineIndent: 5 });
+    yPos = 32;
+    wrapText(doc, stripHTML(item.contenido), margin, yPos, maxTextW, lineH, {
+      firstLineIndent: 5,
+      onNewPage: addContentBg,
+    });
 
-    // Carta page
+    // "Al lector" page
     doc.addPage();
-    addPageBackground(doc);
+    addTitleBg();
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...COLORS.primary);
-    doc.text(`Capítulo ${item.id}`, margin, 18);
-    doc.setFont('helvetica', 'italic');
-    doc.setFontSize(8.5);
-    doc.setTextColor(...COLORS.accentLight);
-    doc.text(stripHTML(item.titulo), margin + 30, 18);
-
-    doc.setDrawColor(...COLORS.accentLight);
-    doc.setLineWidth(0.3);
-    doc.line(margin, 22, pageW - margin, 22);
+    addChapterHeader(doc, item, margin, pageW);
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(...COLORS.heart);
-    doc.text('Carta', pageW / 2, 34, { align: 'center' });
+    doc.text('Al lector', pageW / 2, 34, { align: 'center' });
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('helvetica', 'italic');
     doc.setFontSize(9.5);
     doc.setTextColor(...COLORS.secondary);
 
     yPos = 42;
-    yPos = wrapText(doc, stripHTML(item.carta), margin, yPos, maxTextW, lineH, { firstLineIndent: 5 });
+    wrapText(doc, stripHTML(item.carta), margin, yPos, maxTextW, lineH, {
+      firstLineIndent: 5,
+      onNewPage: addTitleBg,
+    });
   }
 
-  // Update TOC with page numbers
+  // ============================================================
+  // EPÍLOGO
+  // ============================================================
+  doc.addPage();
+  addTitleBg();
+  const epilogoPage = doc.internal.getNumberOfPages();
+
+  doc.setFillColor(...COLORS.accentLight);
+  doc.rect(margin, 90, pageW - margin * 2, 1, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(...COLORS.primary);
+  doc.text('Epílogo', pageW / 2, 115, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.setTextColor(...COLORS.secondary);
+
+  yPos = 135;
+  wrapText(doc, stripHTML(epilogo.contenido), margin, yPos, maxTextW, lineH, {
+    firstLineIndent: 5,
+    onNewPage: addTitleBg,
+  });
+
+  addFooter(doc, epilogoPage);
+
+  // ============================================================
+  // UPDATE TOC WITH PAGE NUMBERS
+  // ============================================================
   doc.setPage(2);
   tocY = 52;
+
+  // Prólogo page number
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  doc.setTextColor(...COLORS.accentLight);
+  doc.text(String(prologoPage), pageW - margin - 5, tocY, { align: 'right' });
+  tocY += 10;
+
+  // Chapter page numbers
   for (const ch of capitulos) {
     const info = chapterStartPages.find(p => p.id === ch.id);
     if (info) {
@@ -235,15 +322,20 @@ export async function generatePDF() {
     tocY += 10;
   }
 
+  // Epílogo page number
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  doc.setTextColor(...COLORS.accentLight);
+  doc.text(String(epilogoPage), pageW - margin - 5, tocY, { align: 'right' });
+
   // ============================================================
-  // FINAL PAGE — contraportada.png
+  // BACK COVER
   // ============================================================
-  const contraportadaData = await loadImage('/img/contraportada.png');
   doc.addPage();
   doc.addImage(contraportadaData, 'PNG', 0, 0, 210, 297);
 
   // ============================================================
-  // ADD PAGE NUMBERS TO ALL PAGES (skip cover and back cover)
+  // PAGE NUMBERS ON ALL PAGES (skip cover and back cover)
   // ============================================================
   const totalPages = doc.internal.getNumberOfPages();
   for (let i = 2; i <= totalPages - 1; i++) {
@@ -251,5 +343,5 @@ export async function generatePDF() {
     addFooter(doc, i);
   }
 
-  doc.save('12-capitulos-nuestra-historia.pdf');
+  doc.save('nuestra-historia.pdf');
 }
