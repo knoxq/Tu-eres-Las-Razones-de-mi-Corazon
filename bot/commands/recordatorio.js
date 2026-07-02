@@ -10,10 +10,10 @@ export function execute(message, client) {
   const pushName = message._data?.notifyName || 'Usuario';
 
   if (reminders.has(from)) {
-    return message.reply('⏰ Ya tienes un recordatorio programado. Te avisaré el 2 de julio cuando el libro esté disponible 💖');
+    return message.reply('⏰ Ya tienes un recordatorio programado. Te avisaré el 3 de julio cuando el libro esté disponible 💖');
   }
 
-  const releaseDate = new Date('2026-07-02T00:00:00-06:00');
+  const releaseDate = new Date('2026-07-03T00:00:00-06:00');
 
   const job = schedule.scheduleJob(releaseDate, async () => {
     try {
@@ -33,7 +33,7 @@ export function execute(message, client) {
 
     const text = `⏰ *Recordatorio programado* ⏰
 
-Te avisaré el *2 de julio* cuando el libro esté disponible (faltan ${days} días).
+Te avisaré el *3 de julio* cuando el libro esté disponible (faltan ${days} días).
 
 Gracias por tu paciencia, ${pushName} 💖`;
     return message.reply(text);

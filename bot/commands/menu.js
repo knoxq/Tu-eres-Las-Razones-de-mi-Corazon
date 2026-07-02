@@ -10,13 +10,13 @@ Hola, soy el bot del libro — TU ERES las razones DE MI CORAZON —. Usa los co
 Enlace de la página web para leer el libro y las cartas.
 
 🔒 *!capitulo* o *!capitulodia*
-Capítulo destacado — disponible el 2 de julio.
+Capítulo destacado — disponible el 3 de julio.
 
 🔒 *!carta* o *!sorpresa*
-Carta de amor — disponible el 2 de julio.
+Carta de amor — disponible el 3 de julio.
 
 📅 *!cuenta* o *!countdown*
-Cuenta regresiva al lanzamiento (2 de julio).
+Cuenta regresiva al lanzamiento (3 de julio).
 
 🎵 *!cancion* o *!musica*
 Canción aleatoria de la playlist de YouTube.
@@ -31,7 +31,7 @@ Todas las canciones de la playlist numeradas.
 Busca canciones por nombre o artista. Si hay varios resultados, elige por número.
 
 ⏰ *!recordatorio* o *!recordar*
-Programa un aviso para el 2 de julio.
+Programa un aviso para el 3 de julio.
 
 Responde con cualquier comando para empezar 💖`;
   return message.reply(menuText);

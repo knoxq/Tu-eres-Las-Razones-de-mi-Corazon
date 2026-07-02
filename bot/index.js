@@ -45,7 +45,7 @@ const GROUP_IDS = [
 // Para obtener el ID de un nuevo grupo: envía "!chatid" al bot desde ese grupo
 
 // Fecha de lanzamiento del libro — Zona horaria de Aguascalientes, México (CST, UTC-6, sin horario de verano)
-const RELEASE_DATE = new Date('2026-07-02T00:00:00-06:00');
+const RELEASE_DATE = new Date('2026-07-03T00:00:00-06:00');
 
 // Envía un mensaje a todos los grupos configurados
 async function sendToGroups(text) {
@@ -103,7 +103,7 @@ function scheduleCountdownReminders() {
 
 Quedan *${timeLeft}* para el lanzamiento del libro.
 
-*2 de Julio de 2026 — 00:00 (Hora de Aguascalientes, México)* 💝
+*3 de Julio de 2026 — 00:00 (Hora de Aguascalientes, México)* 💝
 
 Usa *!cuenta* para ver el tiempo exacto.`;
 
@@ -173,7 +173,7 @@ client.on('qr', (qr) => {
 
 client.on('ready', async () => {
   console.log('🤖 Bot de Tú Eres las Razones de Mi Corazón conectado y listo!');
-  console.log(`📅 Fecha de lanzamiento: 2 de Julio de 2026 (00:00, hora de Aguascalientes, UTC-6)`);
+  console.log(`📅 Fecha de lanzamiento: 3 de Julio de 2026 (00:00, hora de Aguascalientes, UTC-6)`);
   console.log(`🔑 Admin key: ${ADMIN_KEY}`);
   console.log(`📚 ${loadedCommands} comandos disponibles\n`);
 

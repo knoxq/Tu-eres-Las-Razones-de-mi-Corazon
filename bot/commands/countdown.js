@@ -2,7 +2,7 @@ export const name = 'cuenta regresiva';
 export const aliases = ['cuenta regresiva', 'cuenta', 'regresiva', 'countdown', 'tiempo', 'falta', 'lanzamiento'];
 
 export function execute(message) {
-  const releaseDate = new Date('2026-07-02T00:00:00-06:00');
+  const releaseDate = new Date('2026-07-03T00:00:00-06:00');
   const now = new Date();
   const diff = releaseDate.getTime() - now.getTime();
 
@@ -26,7 +26,7 @@ ${seconds} segundos
 
 para el lanzamiento oficial del libro.
 
-*2 de Julio de 2026 — 00:00 (Hora de Aguascalientes, México)* 💝
+*3 de Julio de 2026 — 00:00 (Hora de Aguascalientes, México)* 💝
 
 — Tú Eres las Razones de Mi Corazón`;
   return message.reply(text);

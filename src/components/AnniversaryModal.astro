@@ -1,8 +1,8 @@
 ---
 // Modal de aniversario que aparece al terminar el countdown
 // y durante los siguientes 2 días (2-4 julio 2026)
-const RELEASE = new Date('2026-07-02T00:00:00-06:00').getTime();
-const WINDOW_END = RELEASE + 3 * 24 * 60 * 60 * 1000;
+const RELEASE = new Date('2026-07-03T00:00:00-06:00').getTime();
+const WINDOW_END = RELEASE + 2 * 24 * 60 * 60 * 1000;
 const isActive = Date.now() >= RELEASE && Date.now() < WINDOW_END;
 ---
 
@@ -110,8 +110,8 @@ const isActive = Date.now() >= RELEASE && Date.now() < WINDOW_END;
 </style>
 
 <script>
-  const RELEASE = new Date('2026-07-02T00:00:00-06:00').getTime();
-const WINDOW_END = RELEASE + 3 * 24 * 60 * 60 * 1000;
+  const RELEASE = new Date('2026-07-03T00:00:00-06:00').getTime();
+const WINDOW_END = RELEASE + 2 * 24 * 60 * 60 * 1000;
 
   document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('anniv-modal');
