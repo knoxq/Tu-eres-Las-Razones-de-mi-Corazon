@@ -70,7 +70,7 @@ import ComingSoon from '../components/ComingSoon.astro';
   document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const isAdmin = params.get('access') === ADMIN_KEY;
-    const isReleased = Date.now() >= new Date('2026-07-03T00:00:00-06:00').getTime();
+    const isReleased = Date.now() >= new Date('2026-07-01T00:00:00-06:00').getTime();
 
     if (!isReleased && !isAdmin) {
       document.getElementById('access-blocker-cartas')?.classList.add('active');
