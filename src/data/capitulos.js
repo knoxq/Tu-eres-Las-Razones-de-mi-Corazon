@@ -18,7 +18,7 @@ Así que acompáñame. Te voy a hablar de él en tercera persona, como si lo con
 export const capitulos = [
   {
     id: 1,
-    titulo: "El inicio de nuestra historia",
+    titulo: "Una noche mas",
     resumen: "Todo empezó en un directo de YouTube. El chico era un espectador más entre cientos. No buscaba nada. Pero esa noche, entre el chat y un número de teléfono, comenzó la historia que cambiaría su vida.",
     contenido: `Todo empezó en un directo de YouTube. El chico era un espectador más, otro nombre flotando en el chat entre cientos. No buscaba nada. Solo miraba. Pero esa noche, entre los mensajes que subían y desaparecían, hubo una conversación. Nada profundo —un comentario, una respuesta, una risa que solo existe en texto. Lo bastante ligero como para no importar. Lo bastante real como para no olvidarse.
 
@@ -37,7 +37,7 @@ Le gustaba cómo pensaba. Cómo contaba las cosas. Cómo encontraba el lado grac
   },
   {
     id: 2,
-    titulo: "Cuando mi corazón empezó a elegirte",
+    titulo: "Agarra mi mano",
     resumen: "Sin que él lo decidiera, cada conversación ocupaba más espacio en sus pensamientos. No solo le gustaba hablar con ella, le encantaba la persona que era.",
     contenido: `En aquellos días, sin que él mismo lo comprendiera del todo, el chico comenzó a enamorarse. No fue de golpe. Fue lento, como todo lo que importa. No se enamoraba solo de los momentos que compartían ni de las conversaciones que tenían. Se enamoraba de quien era ella. De su forma de ser, de su esencia, de esa luz que emanaba de ella sin que lo intentara.
 
@@ -56,7 +56,7 @@ Lo que el chico sentía crecía con cada día. Y aunque todavía no se atrevía 
   },
   {
     id: 3,
-    titulo: "El error que nos separó",
+    titulo: "Perdon",
     resumen: "A veces no perdemos a alguien por falta de amor, sino por miedo. Ella tuvo la valentía que a él le faltaba. Y él cometió el error que más le costaría.",
     contenido: `Dicen que después de los momentos más felices también llegan las pruebas más difíciles, y aquella fue una de ellas. A pesar de todo lo que sentía, a pesar de la certeza que crecía en su interior cada día, el chico vivía atrapado entre sus emociones y sus miedos. Su corazón le decía una cosa con una claridad abrumadora, pero sus inseguridades le impedían dar el siguiente paso.
 
@@ -83,7 +83,7 @@ Aprendió que el arrepentimiento es el precio que se paga por las decisiones que
   },
   {
     id: 4,
-    titulo: "Cuando entendí lo que había perdido",
+    titulo: "Peregrinos",
     resumen: "Hay decisiones que duelen por lo que ocurrió, y otras por lo que pudieron haber sido. Cuando por fin encontró el valor para hablar, descubrió que había llegado demasiado tarde.",
     contenido: `Del arrepentimiento rara vez nace algo bueno, pero incluso en medio de las cenizas de una decisión equivocada, las esperanzas no desaparecen del todo. Seguían allí, pequeñas pero persistentes, negándose a extinguirse.
 
@@ -112,7 +112,7 @@ Pero también entendió algo más: el amor que sentía por ella no desaparecerí
   },
   {
     id: 5,
-    titulo: "El vacío de tu ausencia",
+    titulo: "Contenta",
     resumen: "A veces las personas se alejan, pero hay recuerdos que se quedan. Aunque el tiempo avanzó, una parte de su corazón nunca dejó de buscarla.",
     contenido: `Después de todo lo que había sucedido, la amistad que alguna vez los unió comenzó a desvanecerse. No fue repentino ni dramático. Fue un proceso silencioso, casi imperceptible. Un día, simplemente, se dieron cuenta de que las cosas ya no eran como antes y que el camino que recorrían juntos se había bifurcado sin que ninguno lo notara.
 
@@ -137,7 +137,7 @@ Y quizás eso era lo más hermoso de todo: que el amor verdadero no necesita ser
   },
   {
     id: 6,
-    titulo: "El amor que nunca desapareció",
+    titulo: "Esa mujer",
     resumen: "El tiempo siguió avanzando y los caminos se separaron, pero hubo un sentimiento que nunca desapareció. Porque algunas personas dejan huellas que el corazón no aprende a borrar.",
     contenido: `Después de tanto tiempo sin hablar, de intentos esporádicos de contacto que nunca llegaban a buen puerto, el chico comenzó a sentirse mejor con todo lo que había ocurrido. El tiempo había comenzado a cerrar las heridas más superficiales. Había aprendido a vivir con los recuerdos sin que le causaran un dolor insoportable. Había aceptado muchas de las heridas que el pasado le había dejado.
 
@@ -164,7 +164,7 @@ Esa noche, cuando se despidieron, supo que algo había cambiado para siempre. No
   },
   {
     id: 7,
-    titulo: "La decisión que más me enseñó a perderte",
+    titulo: "Babysita </3",
     resumen: "A veces el amor da una segunda oportunidad, pero no siempre se reconoce. Y cuando comprendió lo que tenía frente a sí, ya había tomado la decisión que más arrepentimiento le causaría.",
     contenido: `Después de tantos años de silencio, de recuerdos guardados y de emociones que nunca llegaron a desaparecer, el chico volvió a tener frente a él a la mujer que siempre había considerado el gran amor de su vida. Estaba allí, real, presente, como un sueño del que no quería despertar.
 
@@ -197,7 +197,7 @@ Entendió que el verdadero amor no es posesivo ni controlador. Es generoso, paci
   },
   {
     id: 8,
-    titulo: "El peso de haberte perdido",
+    titulo: "Suicidio",
     resumen: "Perderla no fue lo más difícil. Lo más difícil fue aprender a vivir con el recuerdo de todo lo que pudieron ser y nunca construyeron.",
     contenido: `Después de aquella segunda pérdida, después de haber dejado escapar por segunda vez a la mujer que amaba, el chico cayó en un lugar de sí mismo que nunca antes había explorado. Un abismo interior donde las emociones más oscuras convivían con los recuerdos más brillantes.
 
@@ -224,7 +224,7 @@ Y así, lentamente, el peso del arrepentimiento comenzó a transformarse. En ace
   },
   {
     id: 9,
-    titulo: "Un ratito más",
+    titulo: "Un ratito mas",
     resumen: "A veces la vida concede una segunda oportunidad, no para borrar el pasado, sino para demostrar que el amor verdadero sabe sanar. Esta vez querían aprender a superar las heridas juntos.",
     contenido: `Hubo un tiempo en el que todo parecía ir en direcciones opuestas. Ella estaba dispuesta a dejar su mundo por él, a hacer sacrificios que él ni siquiera era capaz de imaginar. Mientras tanto, el chico permitía que las circunstancias nublaran su corazón con preocupaciones que, vistas desde la perspectiva del presente, nunca fueron tan importantes. Su vida estaba cambiando por completo y, aun así, sentía que el tiempo se había detenido.
 
@@ -253,7 +253,7 @@ Y aunque el camino no era fácil, aunque había días en los que el dolor del pa
   },
   {
     id: 10,
-    titulo: "El lugar donde siempre ha estado mi corazón",
+    titulo: "Un poquito de Fe",
     resumen: "Después de todo lo vivido, comenzaron a vivir los días que tanto habían soñado. Y el chico encontró una forma de demostrarle lo que sentía: creando algo solo para ella.",
     contenido: `Después de todo lo que vivieron, de las despedidas, los errores y las segundas oportunidades, por fin comenzaron a vivir los días que durante tanto tiempo habían soñado.
 
@@ -278,7 +278,7 @@ Y en ese momento, el chico supo que no quería compartir su vida con nadie más.
   },
   {
     id: 11,
-    titulo: "Elegirnos incluso en los días difíciles",
+    titulo: "Detras de ti",
     resumen: "El amor no se mide por los días en que todo sale bien, sino por la decisión de quedarse cuando sanar duele. Y aun en los momentos más difíciles, se siguieron eligiendo.",
     contenido: `No todo en el amor puede ser perfecto. Incluso cuando dos personas se aman con toda su alma, el pasado puede regresar para recordarles las heridas que aún no han sanado del todo. Después de encontrar la felicidad que tanto habían buscado, aquella pareja tuvo que enfrentarse a uno de los desafíos más importantes: aprender a convivir con las cicatrices que ambos llevaban grabadas en el corazón.
 
@@ -307,7 +307,7 @@ Y un día, sin que se dieran cuenta, dejaron de contar las tormentas y comenzaro
   },
   {
     id: 12,
-    titulo: "Mi presente, mi futuro y mi hogar",
+    titulo: "Media Luna",
     resumen: "Después de todo lo que vivieron, el chico comprendió que el destino no solo quería que se encontraran, sino que aprendieran a elegirse. Hoy su lugar favorito sigue siendo el mismo: a su lado.",
     contenido: `Y aquí estamos. Después de todo lo que vivieron, de cada error que cometieron, de cada despedida que rompió sus corazones, de cada lágrima que derramaron en soledad, de cada reencuentro que les devolvió la esperanza y de cada oportunidad que la vida les regaló. Hoy se puede mirar la historia completa y decir que valió absolutamente la pena recorrer cada capítulo para llegar hasta este momento.
 
