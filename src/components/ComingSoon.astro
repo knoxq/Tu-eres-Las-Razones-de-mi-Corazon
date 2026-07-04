@@ -187,12 +187,17 @@ const releaseDate = new Date('2026-07-03T00:00:00-06:00');
 <script>
   const RELEASE = new Date('2026-07-03T00:00:00-06:00').getTime();
 
+  let reloaded = false;
+
   function updateCountdown() {
     const now = Date.now();
     const diff = RELEASE - now;
 
     if (diff <= 0) {
-      window.location.reload();
+      if (!reloaded) {
+        reloaded = true;
+        window.location.reload();
+      }
       return;
     }
 
@@ -209,6 +214,12 @@ const releaseDate = new Date('2026-07-03T00:00:00-06:00');
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.querySelector('.coming-soon-overlay');
+    if (!overlay) return;
+
+    const rect = overlay.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) return;
+
     updateCountdown();
     setInterval(updateCountdown, 1000);
   });
